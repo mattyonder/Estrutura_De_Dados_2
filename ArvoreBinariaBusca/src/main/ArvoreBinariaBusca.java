@@ -97,35 +97,54 @@ public class ArvoreBinariaBusca<T> implements IArvoreBinaria {
 	@Override
 	public INo remover(INo no) throws NoInexistenteException {
 		INo noRemovido = visitar(no);
-		INo pai = noRemovido.getPai();
-		INo filhoEsq = noRemovido.getFilhoEsq();
-		INo filhoDir = noRemovido.getFilhoDir();
+		INo noEncontrado = noRemovido;
+		INo pai = noEncontrado.getPai();
+		INo filhoEsq = noEncontrado.getFilhoEsq();
+		INo filhoDir = noEncontrado.getFilhoDir();
 		
 		if (filhoEsq == null ^ filhoDir == null){
-			if (filhoEsq != null) {
-				filhoEsq.setPai(pai);
-				if(pai.compareTo(noRemovido) == 1) 
-					pai.setFilhoEsq(filhoEsq);
-				else 
-					pai.setFilhoDir(filhoEsq);		
+			if(noEncontrado == raiz) {
+				if (filhoEsq != null) {
+					filhoEsq.setPai(null);
+					noEncontrado = filhoEsq;
+				}
+				else {
+					filhoDir.setPai(null);
+					noEncontrado = filhoDir;
+				}				
 			} else {
-				filhoDir.setPai(pai);
-				if(pai.compareTo(noRemovido) == 1)
-					pai.setFilhoEsq(filhoDir);
-				else
-					pai.setFilhoDir(filhoDir);
+				if (filhoEsq != null) {
+					filhoEsq.setPai(pai);
+					if(pai.compareTo(noEncontrado) == 1) 
+						pai.setFilhoEsq(filhoEsq);
+					else 
+						pai.setFilhoDir(filhoEsq);		
+				} else {
+					filhoDir.setPai(pai);
+					if(pai.compareTo(noEncontrado) == 1)
+						pai.setFilhoEsq(filhoDir);
+					else
+						pai.setFilhoDir(filhoDir);
+				}
 			}
-		} else if(temVaga(noRemovido)) {
-			if (pai.compareTo(noRemovido) == 1)
-				pai.setFilhoEsq(null);
-			else
-				pai.setFilhoDir(null);
+			
+		} else if(temVaga(noEncontrado)) {
+			if (noEncontrado == raiz) {
+				raiz = null;
+			}
+			else {
+				if (pai.compareTo(noEncontrado) == 1)
+					pai.setFilhoEsq(null);
+				else
+					pai.setFilhoDir(null);
+			}
+			
 		} else {
-			INo noAtual = noRemovido.getFilhoEsq();
+			INo noAtual = noEncontrado.getFilhoEsq();
 			while (noAtual.getFilhoDir() != null) {
 				noAtual = noAtual.getFilhoDir();
 			}
-			noRemovido.setValor(noAtual.getValor());
+			noEncontrado.setValor(noAtual.getValor());
 			remover(noAtual);
 		}
 		
