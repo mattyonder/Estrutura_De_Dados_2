@@ -23,7 +23,6 @@ public class ArvoreAVL<T> implements IArvoreAVL {
 		
 		if (!ehBalanceada()) {
 			INo pivo = encontrarPivo(no);
-			System.out.println("Valor do pivo:" +pivo.getValor());
 			realizarRotacao(pivo);
 			ajustarNiveis();
 		}
@@ -57,6 +56,7 @@ public class ArvoreAVL<T> implements IArvoreAVL {
 		INo pai = noEncontrado.getPai();
 		INo filhoEsq = noEncontrado.getFilhoEsq();
 		INo filhoDir = noEncontrado.getFilhoDir();
+		INo noPartida = null;
 		
 		if (filhoEsq == null ^ filhoDir == null){
 			if(noEncontrado == raiz) {
@@ -67,7 +67,8 @@ public class ArvoreAVL<T> implements IArvoreAVL {
 				else {
 					filhoDir.setPai(null);
 					noEncontrado = filhoDir;
-				}				
+				}
+				noPartida = noEncontrado;
 			} else {
 				if (filhoEsq != null) {
 					filhoEsq.setPai(pai);
@@ -75,12 +76,14 @@ public class ArvoreAVL<T> implements IArvoreAVL {
 						pai.setFilhoEsq(filhoEsq);
 					else 
 						pai.setFilhoDir(filhoEsq);		
+					noPartida = filhoEsq;
 				} else {
 					filhoDir.setPai(pai);
 					if(pai.compareTo(noEncontrado) == 1)
 						pai.setFilhoEsq(filhoDir);
 					else
 						pai.setFilhoDir(filhoDir);
+					noPartida = filhoDir;
 				}
 			}
 			
@@ -93,6 +96,7 @@ public class ArvoreAVL<T> implements IArvoreAVL {
 					pai.setFilhoEsq(null);
 				else
 					pai.setFilhoDir(null);
+				noPartida = pai;
 			}
 			
 		} else {
@@ -105,8 +109,7 @@ public class ArvoreAVL<T> implements IArvoreAVL {
 		}
 		
 		if (!ehBalanceada()) {
-			INo pivo = encontrarPivo(noEncontrado);
-			System.out.println("Valor do pivo:" +pivo.getValor());
+			INo pivo = encontrarPivo(noPartida);
 			realizarRotacao(pivo);
 			ajustarNiveis();
 		}
@@ -180,33 +183,28 @@ public class ArvoreAVL<T> implements IArvoreAVL {
 	private int alturaRecursiva(INo no) {
 		if(temVaga(no))
 			return no.getNivel();
+		
 		else {
 			int alturaEsquerda = 0;
 			int alturaDireita = 0;
 			
-			if (no.getFilhoEsq() != null) {
-				alturaEsquerda = alturaRecursiva(no.getFilhoEsq());
-
-			}
-			if (no.getFilhoDir() != null) {
-				alturaDireita = alturaRecursiva(no.getFilhoDir());
-
-			}
+			if (no.getFilhoEsq() != null) 
+				alturaEsquerda = alturaRecursiva(no.getFilhoEsq());			
+			if (no.getFilhoDir() != null) 
+				alturaDireita = alturaRecursiva(no.getFilhoDir());	
+			
 			return Math.max(alturaEsquerda, alturaDireita);
 		}
 	}
 
 	private INo encontrarPivo(INo noPartida) {
 		INo pivo = null;
-		
 			while(pivo == null) {
 				if(verificarBalanco(noPartida) == false) 
 					pivo = noPartida;
-				
 				else
 					noPartida = noPartida.getPai();
-				}
-			
+				}	
 		return pivo;
 	}
 	
@@ -225,11 +223,12 @@ public class ArvoreAVL<T> implements IArvoreAVL {
 	protected int calcularBalanco(INo no) {
 		int alturaEsquerda = 0;
 		int alturaDireita = 0;
+		int alturaNo = no.getNivel();
 		
 		if (no.getFilhoEsq() != null)
-			alturaEsquerda = alturaRecursiva(no.getFilhoEsq()) - no.getNivel(); 
+			alturaEsquerda = alturaRecursiva(no.getFilhoEsq()) - alturaNo; 
 		if (no.getFilhoDir() != null)
-			alturaDireita = alturaRecursiva(no.getFilhoDir()) - no.getNivel();
+			alturaDireita = alturaRecursiva(no.getFilhoDir()) - alturaNo;
 
 		return alturaEsquerda - alturaDireita;
 }
@@ -251,105 +250,46 @@ public class ArvoreAVL<T> implements IArvoreAVL {
 	}
 	
 	private void rotacaoSimplesDir(INo pivo) {
-//		INo e = pivo.getFilhoEsq();		
-//
-//		if (e.getFilhoDir() != null) {
-//			INo aux = e.getFilhoDir();
-//			pivo.setFilhoEsq(aux);
-//			aux.setPai(pivo);
-//		} else
-//			pivo.setFilhoEsq(null);
-//		
-//		if(pivo == raiz)
-//			e.setPai(null);
-//		else {
-//			INo paiPivo = pivo.getPai();
-//			e.setPai(paiPivo);
-//			if (paiPivo.getFilhoEsq() == pivo)
-//				paiPivo.setFilhoEsq(e);
-//			else
-//				paiPivo.setFilhoDir(e);
-//
-//		}
-//		
-//		pivo.setPai(e);
-//		e.setFilhoDir(pivo);	
-		
-		INo filhoEsquerdo = pivo.getFilhoEsq();
-	    INo avo = pivo.getPai();
+		INo e = pivo.getFilhoEsq();
+	    INo paiPivo = pivo.getPai();
+	    pivo.setFilhoEsq(e.getFilhoDir());
+	    
+	    if (e.getFilhoDir() != null) 
+	        e.getFilhoDir().setPai(pivo);  
 
-	    pivo.setFilhoEsq(filhoEsquerdo.getFilhoDir());
-	    if (filhoEsquerdo.getFilhoDir() != null) {
-	        filhoEsquerdo.getFilhoDir().setPai(pivo);
-	    }
+	    e.setFilhoDir(pivo);
+	    pivo.setPai(e);
+	    e.setPai(paiPivo);
 
-	    filhoEsquerdo.setFilhoDir(pivo);
-	    pivo.setPai(filhoEsquerdo);
-	    filhoEsquerdo.setPai(avo);
-
-	    // Atualizar avô para apontar para o novo filho
-	    if (avo != null) {
-	        if (avo.getFilhoEsq() == pivo) {
-	            avo.setFilhoEsq(filhoEsquerdo);
-	        } else {
-	            avo.setFilhoDir(filhoEsquerdo);
-	        }
-	    } else {
-	        // Se o avô é nulo, então o `pivo` era a raiz, então agora o `filhoEsquerdo` é a nova raiz.
-	        raiz = filhoEsquerdo;
-	    }
-	
+	    if (paiPivo != null) {
+	        if (paiPivo.getFilhoEsq() == pivo) 
+	            paiPivo.setFilhoEsq(e);
+	        else 
+	            paiPivo.setFilhoDir(e);	        
+	    } else 
+	        raiz = e;   
 	}
 		
 	
 	private void rotacaoSimplesEsq(INo pivo) {
-//		INo d = pivo.getFilhoDir();
-//		
-//		if (d.getFilhoEsq() != null) {
-//			INo aux = d.getFilhoEsq();
-//			pivo.setFilhoDir(aux);
-//			aux.setPai(pivo);	
-//		} else
-//			pivo.setFilhoDir(null);
-//				
-//		if(pivo == raiz)
-//			d.setPai(null);
-//		else {
-//			INo paiPivo = pivo.getPai();
-//			d.setPai(paiPivo);
-//			if(paiPivo.getFilhoEsq() == pivo)
-//				paiPivo.setFilhoEsq(d);
-//			else
-//				paiPivo.setFilhoDir(d);
-//		}
-//			
-//		pivo.setPai(d);
-//		d.setFilhoEsq(pivo);
-		
-		 INo filhoDireito = pivo.getFilhoDir();
-		    INo avo = pivo.getPai();
-
-		    pivo.setFilhoDir(filhoDireito.getFilhoEsq());
-		    if (filhoDireito.getFilhoEsq() != null) {
-		        filhoDireito.getFilhoEsq().setPai(pivo);
-		    }
-
-		    filhoDireito.setFilhoEsq(pivo);
-		    pivo.setPai(filhoDireito);
-		    filhoDireito.setPai(avo);
-
-		    // Atualizar avô para apontar para o novo filho
-		    if (avo != null) {
-		        if (avo.getFilhoEsq() == pivo) {
-		            avo.setFilhoEsq(filhoDireito);
-		        } else {
-		            avo.setFilhoDir(filhoDireito);
-		        }
-		    } else {
-		        // Se o avô é nulo, então o `pivo` era a raiz, então agora o `filhoDireito` é a nova raiz.
-		        raiz = filhoDireito;
-		    }
-		
+		 INo d = pivo.getFilhoDir();
+		 INo paiPivo = pivo.getPai();
+		 pivo.setFilhoDir(d.getFilhoEsq());
+		 
+		 if (d.getFilhoEsq() != null)    
+			 d.getFilhoEsq().setPai(pivo);
+		    		  
+		 d.setFilhoEsq(pivo);		    
+		 pivo.setPai(d);   
+		 d.setPai(paiPivo);
+		    
+		 if (paiPivo != null) {			 		        
+			 if (paiPivo.getFilhoEsq() == pivo) 		            
+				 paiPivo.setFilhoEsq(d);		 
+			 else 	            
+				 paiPivo.setFilhoDir(d);		        		   
+		 } else 		        		    	
+			 raiz = d;		    		
 	}
 	
 	private void rotacaoDuplaEsqDir(INo pivo) {
