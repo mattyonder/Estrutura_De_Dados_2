@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/ArvoreAVL/ArvoreAVL.iml" filepath="$PROJECT_DIR$/ArvoreAVL/ArvoreAVL.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ArvoreBinariaBusca/ArvoreBinariaBusca.iml" filepath="$PROJECT_DIR$/ArvoreBinariaBusca/ArvoreBinariaBusca.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Pratica.iml" filepath="$PROJECT_DIR$/Pratica.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PrimeiraArvore/PrimeiraArvore.iml" filepath="$PROJECT_DIR$/PrimeiraArvore/PrimeiraArvore.iml" />
+    </modules>
+  </component>
+</project>
